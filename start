@@ -1,0 +1,33 @@
+#!/bin/sh
+# git clone, then ./start: installs Bun when it is missing, the packages, builds artifacts/ from playtika/
+# (bun run setup) and serves the lan profile through a Cloudflare quick tunnel (src/host/start.ts).
+# Flags: --port n (8080), --open (the tunnel's bare address works without the key), --local (no tunnel).
+set -eu
+cd "$(dirname "$0")"
+
+BUN_VERSION=1.4.0
+# True when the Bun at $1 is at least BUN_VERSION (bun.lock needs it); a pre-release counts as its version.
+bun_ok() {
+  v=$("$1" --version 2> /dev/null) || return 1
+  set -- $(echo "${v%%-*}" | tr . ' ') $(echo "$BUN_VERSION" | tr . ' ')
+  [ "$1" -gt "$4" ] || { [ "$1" -eq "$4" ] && { [ "$2" -gt "$5" ] || { [ "$2" -eq "$5" ] && [ "$3" -ge "$6" ]; }; }; }
+}
+if ! bun_ok "$(command -v bun || echo bun)"; then
+  BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+  if ! bun_ok "$BUN_INSTALL/bin/bun"; then
+    echo "Installing Bun $BUN_VERSION with the official installer (bun.sh)…"
+    curl -fsSL https://bun.sh/install | BUN_INSTALL="$BUN_INSTALL" bash -s "bun-v$BUN_VERSION"
+  fi
+  PATH="$BUN_INSTALL/bin:$PATH"
+  export PATH
+fi
+
+# node_modules/.start records the package.json and bun.lock it was installed from.
+stamp=$(cat package.json bun.lock | cksum)
+if [ "$(cat node_modules/.start 2> /dev/null || true)" != "$stamp" ]; then
+  bun install --frozen-lockfile
+  printf '%s\n' "$stamp" > node_modules/.start
+fi
+
+bun run setup
+exec bun src/host/start.ts "$@"

@@ -1,0 +1,21 @@
+# No trailing slash: worktrees link these as symlinks.
+node_modules
+runs/
+# play --public: the access key of the friends' link and their player IDs.
+.lan/
+# ./start: the downloaded cloudflared and its log.
+.cache/
+.env
+.env.*
+__pycache__/
+# What `bun run setup` builds from playtika/, or the user's own copy of the build: original files, bundles and
+# extractions (CLAUDE.md, Safety and tools).
+artifacts
+# What the extractors in re/extract/ write (re/README.md).
+/re/data
+# The custom heroes' directories (heroes/README.md): only the private repository tracks them, and
+# tests/unit/docs.test.ts fails if main does.
+/heroes/files
+# Notes about the custom heroes themselves (heroes/README.md): untracked on every branch.
+/heroes/specifics.md
+.claude/worktrees/

@@ -1,0 +1,19 @@
+{
+  "name": "original-client-offline-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "setup": "bun src/host/build/setup.ts",
+    "verify": "bun src/host/build/verify.ts",
+    "probe": "bun tests/e2e/index.ts",
+    "play": "bun src/host/play.ts",
+    "re": "bun re/cli.ts"
+  },
+  "devDependencies": {
+    "bun-types": "1.3.14",
+    "playwright-core": "1.61.1",
+    "typescript": "5.9.3"
+  }
+}
